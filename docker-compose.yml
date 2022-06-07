@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
 
 networks:
@@ -15,10 +15,10 @@ services:
     expose:
       - 8081
     ports:
-    - "8081:8081"
+      - "8081:8081/tcp"
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.3.1
     container_name: node-exporter
     restart: unless-stopped
     volumes:
@@ -33,18 +33,18 @@ services:
     expose:
       - 9100
     ports:
-      - "9100:9100"
+      - "127.0.0.1:9100:9100/tcp"
     networks:
       - monitoring
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.36.0
     container_name: prometheus
     hostname: prometheus
     restart: unless-stopped
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus:rw
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -56,19 +56,17 @@ services:
     networks:
       - monitoring
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090/tcp"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:8.5.4
     container_name: grafana
-#    environment:
-#      - GF_SECURITY_ADMIN_PASSWORD=pass
     depends_on:
       - prometheus
     networks:
       - monitoring
     ports:
-      - "3000:3000"
+      - "3000:3000/tcp"
 
 # образ исталлятор дашборда и источника данных
 # Dockerfile дает старт скрипту который после старта порта графаны, пуляет туда необходимые запросы
@@ -76,7 +74,7 @@ services:
   after_install:
     build: ./after_install
     container_name: after_install
-    image: prom/after_install:latest
+#    image: prom/after_install:latest
     depends_on:
       - grafana
     restart: "no"
