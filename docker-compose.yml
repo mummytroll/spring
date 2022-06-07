@@ -74,7 +74,6 @@ services:
   after_install:
     build: ./after_install
     container_name: after_install
-#    image: prom/after_install:latest
     depends_on:
       - grafana
     restart: "no"
