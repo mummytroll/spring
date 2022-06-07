@@ -13,6 +13,7 @@ cmd="$@"
 # подготовленный файл с дашбордом
 DASHBOARD='/dash.json'
 
+curl -V
 
 >&2 echo "--- Check $GHOST for available ---"
 
